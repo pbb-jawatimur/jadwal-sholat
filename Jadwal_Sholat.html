@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jadwal Sholat - DPW PBB Jatim</title>
+    <style>
+        :root {
+            /* Light Mode (Default) */
+            --bg-color: #f4f7f6;
+            --card-bg: rgba(255, 255, 255, 0.96);
+            --text-color: #1a1a1a;
+            --accent-color: #075e54;
+            --highlight: #1b8a5a;
+            --footer-text: #444;
+            --selected-text: #ffffff;
+            --pattern-opacity: 0.15;
+        }
+
+        [data-theme="dark"] {
+            /* Dark Mode */
+            --bg-color: #0a0f1a;
+            --card-bg: rgba(15, 23, 42, 0.96);
+            --text-color: #f8fafc;
+            --accent-color: #00ffcc;
+            --highlight: #00ffcc;
+            --footer-text: #94a3b8;
+            --selected-text: #1a1a1a; /* Teks gelap di dark mode saat terpilih */
+            --pattern-opacity: 0.25;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Pola Islami Indah */
+        .islamic-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: var(--pattern-opacity);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath d='M50 0l12.5 37.5H100L62.5 62.5 75 100 50 75 25 100l12.5-37.5L0 37.5h37.5L50 0z' fill='%23075e54' fill-opacity='0.1'/%3E%3Cg fill='none' stroke='%23075e54' stroke-width='1'%3E%3Cpath d='M50 0l50 50-50 50-50-50z'/%3E%3Cpath d='M0 0l100 100M100 0L0 100'/%3E%3Ccircle cx='50' cy='50' r='20'/%3E%3Ccircle cx='50' cy='50' r='35'/%3E%3C/g%3E%3C/svg%3E");
+            background-size: 110px;
+        }
+
+        .container { width: 100%; max-width: 420px; padding: 20px; z-index: 1; display: flex; flex-direction: column; }
+
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+
+        .city-badge {
+            background: var(--accent-color);
+            color: var(--selected-text);
+            padding: 10px 18px;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 30px;
+            padding: 25px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(128,128,128,0.1);
+        }
+
+        .main-title { text-align: center; margin-bottom: 20px; border-bottom: 2px solid rgba(128,128,128,0.1); padding-bottom: 15px; }
+        .main-title h2 { margin: 0; color: var(--accent-color); font-size: 1.3rem; text-transform: uppercase; letter-spacing: 1px; }
+
+        .realtime-section {
+            text-align: center; margin-bottom: 20px; background: rgba(128, 128, 128, 0.05);
+            padding: 15px; border-radius: 20px;
+        }
+
+        #realtime-clock { font-size: 2.6rem; font-weight: 800; margin: 0; font-family: 'Courier New', monospace; letter-spacing: 2px; }
+
+        .sholat-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 14px 18px; border-radius: 12px; margin-bottom: 6px; transition: 0.3s;
+        }
+
+        /* Highlight untuk sholat yang akan datang */
+        .sholat-row.next-sholat {
+            background: var(--accent-color) !important;
+            color: var(--selected-text) !important;
+            transform: scale(1.03);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+        }
+
+        .sholat-row.next-sholat .sholat-time { color: var(--selected-text) !important; }
+        .sholat-time { font-weight: 800; color: var(--highlight); font-size: 1.15rem; }
+
+        .btn-theme { background: var(--accent-color); border: none; color: var(--selected-text); padding: 8px 14px; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 0.75rem; }
+
+        footer { margin-top: auto; padding: 25px 20px; text-align: center; font-size: 0.85rem; color: var(--footer-text); line-height: 1.6; }
+    </style>
+</head>
+<body>
+
+<div class="islamic-bg"></div>
+
+<div class="container">
+    <header>
+        <div id="city-name" class="city-badge">Mendeteksi...</div>
+        <button class="btn-theme" onclick="toggleTheme()">🌓 TEMA</button>
+    </header>
+
+    <div class="card">
+        <div class="main-title">
+            <h2>Jadwal Sholat 5 Waktu</h2>
+            <div id="full-date">...</div>
+        </div>
+        <div class="realtime-section">
+            <p id="realtime-clock">00:00:00</p>
+            <div id="countdown-text" style="font-weight: bold; color: var(--highlight); margin-top: 8px; font-size: 0.85rem;">Mencari Jadwal...</div>
+        </div>
+        <div id="schedule-container"></div>
+    </div>
+
+    <footer>
+        <strong>Created by DPW Partai Bulan Bintang</strong> <br> Provinsi Jawa Timur
+    </footer>
+</div>
+
+<script>
+    let currentTimings = {};
+
+    function toggleTheme() {
+        const html = document.documentElement;
+        html.setAttribute('data-theme', html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    }
+
+    function updateDateTime() {
+        const now = new Date();
+        const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+        document.getElementById('full-date').innerText = now.toLocaleDateString('id-ID', options);
+        document.getElementById('realtime-clock').innerText = now.toLocaleTimeString('id-ID', { hour12: false });
+        if (Object.keys(currentTimings).length > 0) calculateCountdown(now);
+    }
+
+    async function fetchPrayTimes(lat, lon, label) {
+        document.getElementById('city-name').innerText = `📍 ${label}`;
+        try {
+            const res = await fetch(`https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lon}&method=11`);
+            const data = await res.json();
+            renderSchedule(data.data.timings);
+        } catch (e) { 
+            document.getElementById('countdown-text').innerText = "Koneksi API Terputus";
+        }
+    }
+
+    function calculateCountdown(now) {
+        const list = [
+            { name: 'Imsak', time: currentTimings.Imsak },
+            { name: 'Subuh', time: currentTimings.Fajr },
+            { name: 'Dzuhur', time: currentTimings.Dhuhr },
+            { name: 'Ashar', time: currentTimings.Asr },
+            { name: 'Maghrib', time: currentTimings.Maghrib },
+            { name: 'Isya', time: currentTimings.Isha }
+        ];
+
+        let nextSholat = null;
+        for (let s of list) {
+            let [h, m] = s.time.split(':');
+            let sDate = new Date();
+            sDate.setHours(h, m, 0);
+            if (sDate > now) { nextSholat = { name: s.name, date: sDate }; break; }
+        }
+
+        if (!nextSholat) {
+            let [h, m] = list[0].time.split(':');
+            let sDate = new Date();
+            sDate.setDate(sDate.getDate() + 1);
+            sDate.setHours(h, m, 0);
+            nextSholat = { name: list[0].name, date: sDate };
+        }
+
+        const diff = nextSholat.date - now;
+        const hh = Math.floor(diff / 3600000);
+        const mm = Math.floor((diff % 3600000) / 60000);
+        const ss = Math.floor((diff % 60000) / 1000);
+        document.getElementById('countdown-text').innerText = `MENUJU ${nextSholat.name.toUpperCase()}: -${hh}J ${mm}M ${ss}D`;
+
+        document.querySelectorAll('.sholat-row').forEach(row => {
+            row.classList.toggle('next-sholat', row.dataset.name === nextSholat.name);
+        });
+    }
+
+    function renderSchedule(t) {
+        currentTimings = t;
+        const list = [
+            { name: 'Imsak', time: t.Imsak }, { name: 'Subuh', time: t.Fajr },
+            { name: 'Terbit', time: t.Sunrise }, { name: 'Dzuhur', time: t.Dhuhr },
+            { name: 'Ashar', time: t.Asr }, { name: 'Maghrib', time: t.Maghrib }, { name: 'Isya', time: t.Isha }
+        ];
+        document.getElementById('schedule-container').innerHTML = list.map(item => `
+            <div class="sholat-row" data-name="${item.name}">
+                <span style="font-weight:600">${item.name}</span>
+                <span class="sholat-time">${item.time}</span>
+            </div>`).join('');
+    }
+
+    async function init() {
+        setInterval(updateDateTime, 1000);
+        
+        // Langsung gunakan IP Geolocation (Tanpa memanggil navigator.geolocation)
+        try {
+            const resIP = await fetch('https://ipapi.co/json/');
+            const dataIP = await resIP.json();
+            
+            // Cek jika IP memberikan data yang valid
+            if (dataIP.latitude && dataIP.longitude) {
+                fetchPrayTimes(dataIP.latitude, dataIP.longitude, dataIP.city || "Jawa Timur");
+            } else {
+                throw new Error("Invalid IP Data");
+            }
+        } catch (e) {
+            // Fallback permanen ke Surabaya jika layanan IP API sedang limit/gangguan
+            fetchPrayTimes(-7.2504, 112.7688, "Surabaya (Default)");
+        }
+    }
+
+    init();
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('PWA Aktif'))
+        .catch(err => console.log('PWA Gagal', err));
+    });
+  }
+</script>
+<link rel="manifest" href="manifest.json">
+</body>
+</html>
