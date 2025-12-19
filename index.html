@@ -114,7 +114,9 @@
         <div id="city-name" class="city-badge">Mendeteksi...</div>
         <button class="btn-theme" onclick="toggleTheme()">🌓 TEMA</button>
     </header>
-
+<button id="installApp" style="display:none; width:100%; margin-bottom:15px; background:#ffcc00; color:#000; border:none; padding:12px; border-radius:15px; font-weight:bold; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.2);">
+    📲 INSTAL APLIKASI PBB JATIM
+</button>
     <div class="card">
         <div class="main-title">
             <h2>Jadwal Sholat</h2>
@@ -233,15 +235,47 @@
     init();
 </script>
 <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js')
-        .then(reg => console.log('PWA Aktif'))
-        .catch(err => console.log('PWA Gagal', err));
+  let deferredPrompt;
+const installBtn = document.getElementById('installApp');
+
+// Mendeteksi apakah browser mendukung PWA dan siap diinstal
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Simpan event agar bisa dipicu nanti
+    e.preventDefault();
+    deferredPrompt = e;
+    // Munculkan tombol instalasi khusus kita
+    installBtn.style.display = 'block';
+
+    installBtn.addEventListener('click', () => {
+        // Sembunyikan tombol saat diklik
+        installBtn.style.display = 'none';
+        // Tampilkan prompt instalasi bawaan browser
+        deferredPrompt.prompt();
+        // Cek jawaban pengguna
+        deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+                console.log('User menginstal aplikasi');
+            }
+            deferredPrompt = null;
+        });
     });
-  }
+});
+
+// Sembunyikan tombol jika aplikasi sudah terinstal
+window.addEventListener('appinstalled', () => {
+    installBtn.style.display = 'none';
+    console.log('PWA telah terpasang');
+});
+
+// Registrasi Service Worker
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js');
+    });
+}
 </script>
 <link rel="manifest" href="manifest.json">
 </body>
 
 </html>
+
