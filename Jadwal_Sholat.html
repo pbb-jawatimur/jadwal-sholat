@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jadwal Sholat - DPW PBB Jatim</title>
+    <title>Jadwal Sholat</title>
     <style>
         :root {
             /* Light Mode (Default) */
@@ -117,7 +117,7 @@
 
     <div class="card">
         <div class="main-title">
-            <h2>Jadwal Sholat 5 Waktu</h2>
+            <h2>Jadwal Sholat</h2>
             <div id="full-date">...</div>
         </div>
         <div class="realtime-section">
@@ -226,7 +226,7 @@
             }
         } catch (e) {
             // Fallback permanen ke Surabaya jika layanan IP API sedang limit/gangguan
-            fetchPrayTimes(-7.2504, 112.7688, "Surabaya (Default)");
+            fetchPrayTimes(-7.2504, 112.7688, "Surabaya");
         }
     }
 
@@ -243,4 +243,5 @@
 </script>
 <link rel="manifest" href="manifest.json">
 </body>
+
 </html>
